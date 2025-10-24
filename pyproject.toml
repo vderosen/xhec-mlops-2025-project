@@ -2,14 +2,17 @@
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+py-modules = []
+
 [project]
 name = "xhec-mlops-project-student"
 version = "0.0.1"
 authors = [
-  { name = "Soumyabrata Bairagi", email = "roy.bensimon@polytechnique.edu" },
+  { name = "Soumyabrata Bairagi", email = "soumyabrata.bairagi@hec.edu" },
   { name = "Samuel Rajzman", email = "samuel.rajzman@hec.edu" },
   { name = "Roy Bensimon", email = "roy.bensimon@hec.edu" },
-  { name = "Vassili de Rosen", email = "vassili.-rosen@hec.edu" },
+  { name = "Vassili de Rosen", email = "vassili.de-rosen@hec.edu" },
   { name = "Adam Berdah", email = "adam.berdah@hec.edu" },
 ]
 description = "X-HEC MLOps Project on Abalone age prediction model"
@@ -26,6 +29,7 @@ dependencies = [
 
     # MLOps
     "prefect>=2.14.0",
+    "mlflow>=2.8.0",
 
     # API
     "fastapi>=0.104.0",
