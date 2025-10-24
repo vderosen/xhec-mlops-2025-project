@@ -7,8 +7,8 @@ from sklearn.metrics import mean_absolute_error
 import joblib
 from prefect import flow, task
 
-DATA_PATH = Path("assets/data/abalone.csv")      # adjust if your dataset lives elsewhere
-MODELS_DIR = Path("assets/models")
+DATA_PATH = Path("../assets/data/abalone.csv")      # adjust if your dataset lives elsewhere
+MODELS_DIR = Path("../assets/models")
 MODELS_DIR.mkdir(parents=True, exist_ok=True)
 
 @task
