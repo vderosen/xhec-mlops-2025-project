@@ -18,7 +18,7 @@ def create_deployment():
     Create Prefect deployment for abalone training pipeline.
     """
     # Get the dataset path
-    dataset_path = Path("abalone.csv").absolute()
+    dataset_path = Path("../assets/data/abalone.csv").absolute()
     
     if not dataset_path.exists():
         raise FileNotFoundError(f"Dataset not found at {dataset_path}")
@@ -45,7 +45,7 @@ def create_deployment_with_ui():
     from .prefect_flow import abalone_training_with_ui_flow
     
     # Get the dataset path
-    dataset_path = Path("abalone.csv").absolute()
+    dataset_path = Path("../assets/data/abalone.csv").absolute()
     
     if not dataset_path.exists():
         raise FileNotFoundError(f"Dataset not found at {dataset_path}")
