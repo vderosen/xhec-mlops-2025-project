@@ -32,7 +32,7 @@ Traditionally, determining an abalone's age requires:
 - Soumyabrata Bairagi (roy.bensimon@polytechnique.edu)
 - Samuel Rajzman (samuel.rajzman@hec.edu)
 - Roy Bensimon (roy.bensimon@hec.edu)
-- Vassili de Rosen (vassili.-rosen@hec.edu)
+- Vassili de Rosen (vassili.de-rosen@hec.edu)
 - Adam Berdah (adam.berdah@hec.edu)
 
 ## 🛠️ Development Environment
