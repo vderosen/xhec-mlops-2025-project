@@ -1,15 +1,18 @@
 """
-Main training pipeline for abalone age prediction with MLflow integration.
+Main training pipeline for abalone age prediction with MLflow and Prefect integration.
 
 This module orchestrates the complete training flow: data loading, preprocessing,
-model training, evaluation, and saving for deployment.
+model training, evaluation, and saving for deployment using Prefect flows and tasks.
 """
 
 import argparse
 import warnings
+from pathlib import Path
 
 import mlflow
 import mlflow.sklearn
+from prefect import flow, task, get_run_logger
+from prefect.task_runners import SequentialTaskRunner
 
 from .preprocessing import preprocess_data, get_feature_columns
 from .training import train_all_models
@@ -18,6 +21,7 @@ from .utils import save_model_and_preprocessors
 warnings.filterwarnings("ignore")
 
 
+@task(name="setup_mlflow")
 def setup_mlflow(experiment_name: str = "abalone_age_prediction") -> None:
     """
     Setup MLflow tracking.
@@ -25,14 +29,16 @@ def setup_mlflow(experiment_name: str = "abalone_age_prediction") -> None:
     Args:
         experiment_name: Name of the MLflow experiment
     """
+    logger = get_run_logger()
+    
     # Set tracking URI to local file system
     mlflow.set_tracking_uri("file:./mlruns")
 
     # Set experiment
     mlflow.set_experiment(experiment_name)
 
-    print(f"MLflow tracking URI: {mlflow.get_tracking_uri()}")
-    print(f"MLflow experiment: {mlflow.get_experiment_by_name(experiment_name)}")
+    logger.info(f"MLflow tracking URI: {mlflow.get_tracking_uri()}")
+    logger.info(f"MLflow experiment: {mlflow.get_experiment_by_name(experiment_name)}")
 
 
 def main(trainset_path: str, output_dir: str = "src/web_service/local_objects") -> None:
