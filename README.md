@@ -185,12 +185,12 @@ uv run pre-commit run --all-files
 When you're done, your repository should contain:
 
 ✅ **Automated Training Pipeline**
-- [ ] Prefect workflows for model training
-- [ ] Separate modules for training and inference
-- [ ] Reproducible model and encoder generation
+- [x] Prefect workflows for model training
+- [x] Separate modules for training and inference
+- [x] Reproducible model and encoder generation
 
 ✅ **Automated Deployment**
-- [ ] Prefect deployment for regular retraining
+- [x] Prefect deployment for regular retraining
 
 ✅ **Production API**
 - [ ] Working REST API for predictions
@@ -203,6 +203,142 @@ When you're done, your repository should contain:
 - [x] Complete development environment setup
 - [x] Troubleshooting guide
 - [ ] All TODOs removed from code (in progress)
+
+## 🔄 Prefect Workflow Management
+
+### Prerequisites for Prefect
+
+1. **Ensure Dependencies are Installed:**
+   ```bash
+   # Activate virtual environment
+   source .venv/bin/activate
+   
+   # Install/update dependencies
+   uv sync --extra dev
+   
+   # Verify Prefect and MLflow are installed
+   python -c "import prefect; import mlflow; print('✅ Dependencies OK')"
+   ```
+
+### Running Training with Prefect
+
+1. **Start Prefect Server (Terminal 1):**
+   ```bash
+   # Start Prefect server in background
+   prefect server start
+   ```
+   - Server will be available at http://localhost:4200
+   - Keep this terminal running
+
+2. **Run Training Flow (Terminal 2):**
+   ```bash
+   # Basic training
+   python -m src.modelling.run_prefect_flow abalone.csv
+   
+   # Training with MLflow UI launcher
+   python -m src.modelling.run_prefect_flow abalone.csv --launch-ui
+   
+   # Asynchronous execution
+   python -m src.modelling.run_prefect_flow abalone.csv --async-run
+   ```
+
+3. **View Prefect UI:**
+   - Open http://localhost:4200 in your browser
+   - Navigate to "Runs" to see flow executions
+   - Click on individual runs to see detailed logs
+   - Monitor task execution in real-time
+
+### Creating and Managing Deployments
+
+1. **Create Deployment:**
+   ```bash
+   # Standard deployment
+   python -m src.modelling.create_deployment
+   
+   # Deployment with MLflow UI
+   python -m src.modelling.create_deployment --with-ui
+   ```
+
+2. **Apply and Serve Deployment:**
+   ```bash
+   # Apply deployment to Prefect server
+   python -m src.modelling.create_deployment --serve
+   
+   # Or manually apply
+   prefect deployment apply abalone_training_pipeline/abalone-training-deployment
+   ```
+
+3. **Run Deployment:**
+   ```bash
+   # Execute deployment manually
+   prefect deployment run "abalone_training_pipeline/abalone-training-deployment"
+   ```
+
+4. **Start Agent (for scheduled runs):**
+   ```bash
+   # Start agent to execute scheduled deployments
+   prefect agent start --pool default-agent-pool
+   ```
+
+### Prefect UI Features
+
+- **Dashboard**: Overview of all flow runs and system health
+- **Flow Runs**: Monitor all training executions with detailed logs
+- **Task Runs**: Task-level monitoring and debugging
+- **Deployments**: Manage and configure automated deployments
+- **Logs**: Real-time logging and error tracking
+- **Schedules**: Configure automated retraining schedules
+
+### MLflow Integration
+
+1. **Start MLflow UI:**
+   ```bash
+   # Start MLflow UI (separate terminal)
+   mlflow ui
+   ```
+   - Available at http://localhost:5000
+   - View experiments, models, and metrics
+
+2. **View Training Results:**
+   - Navigate to the "abalone_age_prediction" experiment
+   - Compare model performance metrics
+   - Download trained models and artifacts
+
+### Troubleshooting Prefect
+
+**Common Issues:**
+
+1. **"No module named 'mlflow'" Error:**
+   ```bash
+   # Ensure virtual environment is activated
+   source .venv/bin/activate
+   
+   # Reinstall dependencies
+   uv sync --extra dev
+   ```
+
+2. **Prefect Server Connection Issues:**
+   ```bash
+   # Check if server is running
+   curl http://localhost:4200/api/health
+   
+   # Restart server if needed
+   prefect server start
+   ```
+
+3. **Deployment Not Found:**
+   ```bash
+   # List available deployments
+   prefect deployment ls
+   
+   # Apply deployment if missing
+   python -m src.modelling.create_deployment
+   ```
+
+4. **Flow Run Failures:**
+   - Check Prefect UI logs for detailed error messages
+   - Verify dataset path exists: `ls abalone.csv`
+   - Ensure all dependencies are installed
 
 ---
 
