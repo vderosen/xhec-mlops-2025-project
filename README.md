@@ -193,16 +193,16 @@ When you're done, your repository should contain:
 - [x] Prefect deployment for regular retraining
 
 ✅ **Production API**
-- [ ] Working REST API for predictions
-- [ ] Pydantic input validation
-- [ ] Docker containerization
+- [x] Working REST API for predictions
+- [x] Pydantic input validation
+- [x] Docker containerization
 
 ✅ **Professional Documentation**
 - [x] Updated README with team info
 - [x] Clear setup and run instructions
 - [x] Complete development environment setup
 - [x] Troubleshooting guide
-- [ ] All TODOs removed from code (in progress)
+- [x] All TODOs removed from code
 
 ## 🔄 Prefect Workflow Management
 
@@ -339,6 +339,256 @@ When you're done, your repository should contain:
    - Check Prefect UI logs for detailed error messages
    - Verify dataset path exists: `ls abalone.csv`
    - Ensure all dependencies are installed
+
+---
+
+## 🚀 FastAPI Deployment & Prediction Service
+
+### Running the API Locally
+
+1. **Ensure the Model Files Exist:**
+   ```bash
+   # Model artifacts should be in:
+   ls src/web_service/local_objects/
+   # Should contain: model.pkl, scaler.pkl, label_encoder.pkl
+   ```
+
+2. **Start the API:**
+   ```bash
+   # Activate virtual environment
+   source .venv/bin/activate
+   
+   # Run FastAPI application
+   uvicorn src.web_service.main:app --host 0.0.0.0 --port 8001 --reload
+   ```
+   
+   - API will be available at http://localhost:8001
+   - Interactive docs at http://localhost:8001/docs
+   - Alternative docs at http://localhost:8001/redoc
+
+3. **Test the API:**
+   ```bash
+   # Health check
+   curl http://localhost:8001/health
+   
+   # Make a prediction
+   curl -X POST "http://localhost:8001/predict" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "Sex": "M",
+       "Length": 0.455,
+       "Diameter": 0.365,
+       "Height": 0.095,
+       "Whole_weight": 0.514,
+       "Shucked_weight": 0.2245,
+       "Viscera_weight": 0.101,
+       "Shell_weight": 0.15
+     }'
+   ```
+
+### Running with Docker
+
+#### Building the Docker Image
+
+```bash
+# Build the Docker image
+docker build -t abalone-prediction-api -f Dockerfile.app .
+
+# Verify the image was created
+docker images | grep abalone-prediction-api
+```
+
+#### Running the Docker Container
+
+```bash
+# Run the container with port mapping
+docker run -d \
+  --name abalone-api \
+  -p 0.0.0.0:8000:8001 \
+  -p 0.0.0.0:4200:4201 \
+  abalone-prediction-api
+
+# Check if container is running
+docker ps | grep abalone-api
+
+# View logs
+docker logs abalone-api -f
+```
+
+**Port Mapping:**
+- **8000** (host) → **8001** (container): FastAPI application
+- **4200** (host) → **4201** (container): Prefect server
+
+#### Access Services
+
+Once the container is running:
+- **FastAPI**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs
+- **Prefect UI**: http://localhost:4200
+
+#### Docker Management Commands
+
+```bash
+# Stop the container
+docker stop abalone-api
+
+# Start the container
+docker start abalone-api
+
+# Restart the container
+docker restart abalone-api
+
+# Remove the container
+docker rm -f abalone-api
+
+# View container logs
+docker logs abalone-api
+
+# Execute commands inside container
+docker exec -it abalone-api bash
+
+# Remove the image
+docker rmi abalone-prediction-api
+```
+
+### API Endpoints
+
+#### Health Check
+```bash
+GET /
+GET /health
+```
+
+#### Make Predictions
+```bash
+POST /predict
+```
+
+**Request Body:**
+```json
+{
+  "Sex": "M",
+  "Length": 0.455,
+  "Diameter": 0.365,
+  "Height": 0.095,
+  "Whole_weight": 0.514,
+  "Shucked_weight": 0.2245,
+  "Viscera_weight": 0.101,
+  "Shell_weight": 0.15
+}
+```
+
+**Response:**
+```json
+{
+  "predicted_rings": 9.5,
+  "predicted_age": 11.0,
+  "confidence": 0.85,
+  "model_type": "RandomForestRegressor"
+}
+```
+
+#### Model Information
+```bash
+GET /model/info
+```
+
+### Testing the API with Examples
+
+```bash
+# Example 1: Young Male Abalone
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Sex": "M",
+    "Length": 0.35,
+    "Diameter": 0.265,
+    "Height": 0.09,
+    "Whole_weight": 0.2255,
+    "Shucked_weight": 0.0995,
+    "Viscera_weight": 0.0485,
+    "Shell_weight": 0.07
+  }'
+
+# Example 2: Female Abalone
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Sex": "F",
+    "Length": 0.53,
+    "Diameter": 0.42,
+    "Height": 0.135,
+    "Whole_weight": 0.677,
+    "Shucked_weight": 0.2565,
+    "Viscera_weight": 0.1415,
+    "Shell_weight": 0.21
+  }'
+
+# Example 3: Infant Abalone
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "Sex": "I",
+    "Length": 0.075,
+    "Diameter": 0.055,
+    "Height": 0.01,
+    "Whole_weight": 0.002,
+    "Shucked_weight": 0.0010,
+    "Viscera_weight": 0.0005,
+    "Shell_weight": 0.0015
+  }'
+```
+
+### API Features
+
+- ✅ **Automatic Model Loading**: Model, scaler, and label encoder loaded on startup
+- ✅ **Input Validation**: Pydantic models ensure data integrity
+- ✅ **Feature Engineering**: Automatic creation of 27 engineered features
+- ✅ **Confidence Scores**: Prediction confidence based on model variance
+- ✅ **Health Monitoring**: Built-in health check endpoints
+- ✅ **Interactive Documentation**: Swagger UI and ReDoc
+- ✅ **Docker Support**: Production-ready containerization
+
+### Troubleshooting API
+
+**Common Issues:**
+
+1. **Port Already in Use:**
+   ```bash
+   # Find process using the port
+   lsof -i :8001
+   
+   # Kill the process
+   kill -9 <PID>
+   ```
+
+2. **Model Files Not Found:**
+   ```bash
+   # Ensure model files exist
+   ls -la src/web_service/local_objects/
+   
+   # If missing, run training pipeline
+   python -m src.modelling.run_prefect_flow abalone.csv
+   ```
+
+3. **Docker Build Failures:**
+   ```bash
+   # Clean Docker cache
+   docker system prune -a
+   
+   # Rebuild with no cache
+   docker build --no-cache -t abalone-prediction-api -f Dockerfile.app .
+   ```
+
+4. **Container Won't Start:**
+   ```bash
+   # Check logs for errors
+   docker logs abalone-api
+   
+   # Check if ports are available
+   lsof -i :8000
+   lsof -i :4200
+   ```
 
 ---
 
